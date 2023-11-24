@@ -1,0 +1,20 @@
+{
+  "Users": [
+    {
+      "förnamn": "Claes",
+      "efternamn": "Andersson",
+      "användarnamn": "Claes68",
+      "födelsedag": "2004-12-23",
+      "bild": "./img/arrow.png",
+      "yrke": "Programerare"
+    },
+    {
+      "förnamn": "Fredrik",
+      "efternamn": "Andersson",
+      "användarnamn": "Claes68",
+      "födelsedag": "2004-12-23",
+      "bild": "./img/arrow.png",
+      "yrke": "Programerare"
+    }
+  ]
+}

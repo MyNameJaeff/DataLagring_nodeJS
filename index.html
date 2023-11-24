@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home page</title>
+</head>
+
+<body>
+    <h1>Hello world</h1>
+    <main>
+        <div id="buttonDiv" style="display: block;">
+            <button onclick="createUser()">Skapa</button>
+            <button onclick="editUser()">Redigera</button>
+            <button onclick="showUsers()">Visa</button>
+        </div>
+        <div id="formDiv" style="display: none;">
+            <form id="form" name="test">
+                <div>
+                    <label for="förnamn">Förnamn:</label>
+                    <input type="text" name="förnamn" id="förnamn" required><br>
+                </div>
+                <div>
+                    <label for="efternamn">Efternamn:</label>
+                    <input type="text" name="efternamn" id="efternamn" required><br>
+                </div>
+                <div>
+                    <label for="användarnamn">Användarnamn:</label>
+                    <input type="text" name="användarnamn" id="användarnamn" required><br>
+                </div>
+                <div>
+                    <label for="födelsedag">Födelsedag:</label>
+                    <input type="date" name="födelsedag" id="födelsedag" required><br>
+                </div>
+                <div>
+                    <label for="bild">Bild:</label>
+                    <input type="file" accept="image/*" name="bild" id="bild" required><br>
+                </div>
+                <div>
+                    <label for="yrke">Yrke:</label>
+                    <input type="text" name="yrke" id="yrke" required><br>
+                </div>
+                <input type="submit" value="Skicka" name="submit">
+            </form>
+        </div>
+    </main>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const formDiv = document.getElementById("formDiv");
+
+
+        const form = document.getElementById('form');
+        const förnamn = document.getElementById('förnamn');
+        const efternamn = document.getElementById('efternamn');
+        const användarnamn = document.getElementById('användarnamn');
+        const födelsedag = document.getElementById('födelsedag');
+        const bild = document.getElementById('bild');
+        const yrke = document.getElementById('yrke');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            var filePath = "./img/" + (bild.value).split("C:\\fakepath\\")[1];
+            socket.emit(form.name, 
+            {
+                'förnamn': förnamn.value,
+                'efternamn': efternamn.value,
+                'användarnamn': användarnamn.value,
+                'födelsedag': födelsedag.value,
+                'bild': filePath,
+                'yrke': yrke.value
+            });
+            förnamn.value = '';
+        });
+
+        const createUser = () => {
+            formDiv.style = "display:block;";
+            form.name = "create";
+        }
+
+        const editUser = () => {
+            formDiv.style = "display:block;";
+            form.name = "edit";
+        }
+
+        const showUsers = () => {
+            formDiv.style = "display:none;"
+            form.name = "";
+        }
+    </script>
+</body>
+
+</html>
