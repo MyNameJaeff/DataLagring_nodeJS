@@ -6,48 +6,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <link rel="stylesheet" href="style.css">
     <title>Home page</title>
 </head>
 
 <body>
     <main class="d-flex align-items-center flex-column ">
-        <h1>Hello world</h1>
+        <h1>Hello world!</h1>
         <div id="buttonDiv" style="display: block;">
             <button onclick="createUser()" class="btn btn-outline-primary">Skapa</button>
             <button onclick="editUser()" class="btn btn-outline-primary">Redigera</button>
             <button onclick="showUsers()" class="btn btn-outline-primary">Visa</button>
         </div>
         <div>
+            <div class="whoDiv">
+                <form id="whoForm" name="whoForm" style="display: none;">
+                    <div class="mb-3">
+                        <label for="who" class="form-label">Who (username)?</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" name="who" id="who" required min="3" max="999">
+                        </div>
+                        <input type="submit" value="Skicka" name="submitWho" class="btn btn-primary">
+                    </div>
+                </form>
+            </div>
             <div id="formDiv" style="display: none;">
                 <div>
                     <h3 id="formHeader">Create person</h3>
                     <form id="form" name="test" action="/" enctype="multipart/form-data" method="post">
-                        <div>
-                            <label for="firstname">Förnamn:</label>
-                            <input type="text" name="firstname" id="firstname" required><br>
+                        <div class="mb-3">
+                            <label for="firstname" class="form-label">Förnamn:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" name="firstname" id="firstname" required><br>
+                            </div>
                         </div>
-                        <div>
-                            <label for="lastname">Efternamn:</label>
-                            <input type="text" name="lastname" id="lastname" required><br>
+                        <div class="mb-3">
+                            <label for="lastname" class="form-label">Efternamn:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" name="lastname" id="lastname" required><br>
+                            </div>
                         </div>
-                        <div>
-                            <label for="username">Användarnamn:</label>
-                            <input type="text" name="username" id="username" required><br>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Användarnamn:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" name="username" id="username" required><br>
+                            </div>
                         </div>
-                        <div>
-                            <label for="birthday">Födelsedag:</label>
-                            <input type="date" name="birthday" id="birthday" required><br>
+                        <div class="mb-3">
+                            <label for="birthday" class="form-label">Födelsedag:</label>
+                            <div class="input-group mb-3">
+                                <input type="date" class="form-control" name="birthday" id="birthday" required><br>
+                            </div>
                         </div>
-                        <div>
-                            <label for="image">Bild:</label>
-                            <input type="file" accept="image/*" name="image" id="image" required><br>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Bild:</label>
+                            <div class="input-group mb-3">
+                                <input type="file" class="form-control" accept="image/*" name="image" id="image"
+                                    required>
+                            </div>
                         </div>
-                        <div>
-                            <label for="proffesion">Yrke:</label>
-                            <input type="text" name="proffesion" id="proffesion" required><br>
+                        <div class="mb-3">
+                            <label for="proffesion" class="form-label">Yrke:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" name="proffesion" id="proffesion" required><br>
+                            </div>
                         </div>
-                        <input type="submit" value="Skicka" name="submit">
+                        <input type="submit" value="Skicka" name="submit" class="btn btn-primary">
                     </form>
                 </div>
             </div>
@@ -61,35 +86,51 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        const formDiv = document.getElementById("formDiv");
-        const personsSpace = document.getElementById("personsSpace");
-        const formHeader = document.getElementById("formHeader");
+        const formDiv = $("#formDiv");
+        const personsSpace = $("#personsSpace");
+        const formHeader = $("#formHeader");
+        const whoForm = $("#whoForm");
 
-        const form = document.getElementById('form');
-        const förnamn = document.getElementById('firstname');
-        const efternamn = document.getElementById('lastname');
-        const användarnamn = document.getElementById('username');
-        const födelsedag = document.getElementById('birthday');
-        const bild = document.getElementById('image').files[0];
-        const yrke = document.getElementById('profession');
+        const form = $('#form');
+        const förnamn = $('#firstname');
+        const efternamn = $('#lastname');
+        const användarnamn = $('#username');
+        const födelsedag = $('#birthday');
+        const bild = $('#image')[0].files[0];
+        const yrke = $('#profession');
+        const who = $("#who");
+
+
+        whoForm.on("submit", (e) => {
+            whoForm.css("display", "none");
+            $("#formDiv input").prop("disabled", false);
+            let whomst = who.val();
+            socket.emit("searchFor", whomst)
+            e.preventDefault();
+        })
 
         const createUser = () => {
-            formDiv.style = "display:flex;";
-            form.name = "create";
-            personsSpace.innerHTML = "";
-            formHeader.innerText = "Create Person";
+            formDiv.css("display", "flex");
+            form.attr("id", "create");
+            whoForm.css("display", "none");
+            personsSpace.html("");
+            formHeader.text("Create Person");
+            $("#formDiv input").prop("disabled", false);
         }
 
         const editUser = () => {
-            formDiv.style = "display:flex;";
-            form.name = "edit";
-            personsSpace.innerHTML = "";
-            formHeader.innerText = "Edit Person";
+            formDiv.css("display", "flex");
+            $("#formDiv input").prop("disabled", true);
+            form.attr("id", "edit");
+            whoForm.css("display", "flex");
+            personsSpace.html("");
+            formHeader.text("Edit Person");
         }
 
         const showUsers = () => {
-            formDiv.style = "display:none;"
+            formDiv.css("display", "none");
             socket.emit("show");
+            whoForm.css("display", "none");
         }
 
         socket.on("printAll", (users) => {
@@ -97,18 +138,20 @@
             let string = "";
             persons.map((user) => {
                 string += `
-                <div>
-                    <p>${user.firstname}</p>
-                    <p>${user.lastname}</p>
-                    <p>${user.username}</p>
-                    <p>${user.birthday}</p>
-                    <img src='${user.image}'>
-                    <p>${user.proffesion}</p>
-                </div>`;
-                console.log(user);
+                <div class="card">
+                    <div class='cardImgDiv'>
+                        <img src="${user.image}" alt="Card Image" style="width:100%">
+                    </div>
+                    <div class="container">
+                    <h4><b>${user.firstname} ${user.lastname}</b></h4>
+                    <p>Username: <br>${user.username}</p>
+                    <p>Birthdate: <br>${user.birthday}</p>
+                    <p>Profession: <br>${user.proffesion}</p>
+                    </div>
+                </div> `;
             });
-            personsSpace.innerHTML = string;
-        })
+            personsSpace.html(string);
+        });
     </script>
 </body>
 
