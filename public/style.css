@@ -1,0 +1,14 @@
+img{
+    width: 200px;
+}
+#personsDiv{
+    width: 100%;
+}
+#personsDiv > div, #formDiv{
+    display: flex;
+    justify-content: space-evenly;
+}
+main>div:nth-child(3){
+    margin-top: 1%;
+    width: 100%;
+}

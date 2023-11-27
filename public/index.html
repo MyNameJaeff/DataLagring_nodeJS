@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <title>Home page</title>
+</head>
+
+<body>
+    <main class="d-flex align-items-center flex-column ">
+        <h1>Hello world</h1>
+        <div id="buttonDiv" style="display: block;">
+            <button onclick="createUser()" class="btn btn-outline-primary">Skapa</button>
+            <button onclick="editUser()" class="btn btn-outline-primary">Redigera</button>
+            <button onclick="showUsers()" class="btn btn-outline-primary">Visa</button>
+        </div>
+        <div>
+            <div id="formDiv" style="display: none;">
+                <div>
+                    <h3 id="formHeader">Create person</h3>
+                    <form id="form" name="test" action="/" enctype="multipart/form-data" method="post">
+                        <div>
+                            <label for="firstname">Förnamn:</label>
+                            <input type="text" name="firstname" id="firstname" required><br>
+                        </div>
+                        <div>
+                            <label for="lastname">Efternamn:</label>
+                            <input type="text" name="lastname" id="lastname" required><br>
+                        </div>
+                        <div>
+                            <label for="username">Användarnamn:</label>
+                            <input type="text" name="username" id="username" required><br>
+                        </div>
+                        <div>
+                            <label for="birthday">Födelsedag:</label>
+                            <input type="date" name="birthday" id="birthday" required><br>
+                        </div>
+                        <div>
+                            <label for="image">Bild:</label>
+                            <input type="file" accept="image/*" name="image" id="image" required><br>
+                        </div>
+                        <div>
+                            <label for="proffesion">Yrke:</label>
+                            <input type="text" name="proffesion" id="proffesion" required><br>
+                        </div>
+                        <input type="submit" value="Skicka" name="submit">
+                    </form>
+                </div>
+            </div>
+            <div id="personsDiv">
+                <div id="personsSpace">
+
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const formDiv = document.getElementById("formDiv");
+        const personsSpace = document.getElementById("personsSpace");
+        const formHeader = document.getElementById("formHeader");
+
+        const form = document.getElementById('form');
+        const förnamn = document.getElementById('firstname');
+        const efternamn = document.getElementById('lastname');
+        const användarnamn = document.getElementById('username');
+        const födelsedag = document.getElementById('birthday');
+        const bild = document.getElementById('image').files[0];
+        const yrke = document.getElementById('profession');
+
+        const createUser = () => {
+            formDiv.style = "display:flex;";
+            form.name = "create";
+            personsSpace.innerHTML = "";
+            formHeader.innerText = "Create Person";
+        }
+
+        const editUser = () => {
+            formDiv.style = "display:flex;";
+            form.name = "edit";
+            personsSpace.innerHTML = "";
+            formHeader.innerText = "Edit Person";
+        }
+
+        const showUsers = () => {
+            formDiv.style = "display:none;"
+            socket.emit("show");
+        }
+
+        socket.on("printAll", (users) => {
+            let persons = users.Users.Users;
+            let string = "";
+            persons.map((user) => {
+                string += `
+                <div>
+                    <p>${user.firstname}</p>
+                    <p>${user.lastname}</p>
+                    <p>${user.username}</p>
+                    <p>${user.birthday}</p>
+                    <img src='${user.image}'>
+                    <p>${user.proffesion}</p>
+                </div>`;
+                console.log(user);
+            });
+            personsSpace.innerHTML = string;
+        })
+    </script>
+</body>
+
+</html>
