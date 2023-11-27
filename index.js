@@ -3,6 +3,17 @@ const { createServer } = require("node:http");
 const { join } = require("node:path");
 const { Server } = require("socket.io");
 const fs = require("fs");
+const multer = require("multer");
+
+const upload = multer({
+  dest: "img/",
+});
+
+function uploadFiles(req, res) {
+  console.log(req.body);
+  console.log(req.files);
+  res.json({ message: "Successfully uploaded files" });
+}
 
 const app = express();
 const server = createServer(app);
@@ -18,28 +29,34 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
   socket.on("create", (data) => {
+    console.log(data.bild);
+
     var userData = fs.readFileSync("userData.json");
 
     var myObj = JSON.parse(userData);
     myObj.Users.push(data);
     var newData2 = JSON.stringify(myObj);
     fs.writeFile("userData.json", newData2, (err) => {
-          if (err) throw err;
+      if (err) throw err;
       console.log("New data added");
     });
   });
   socket.on("edit", (data) => {
-    console.log(data);
     var userData = fs.readFileSync("userData.json");
 
     var myObj = JSON.parse(userData);
     myObj.Users.push(data);
     var newData2 = JSON.stringify(myObj);
     fs.writeFile("userData.json", newData2, (err) => {
-          if (err) throw err;
+      if (err) throw err;
       console.log("New data added");
     });
+  });
+  socket.on("show", (data) => {
+    var userData = fs.readFileSync("userData.json");
 
+    var myObj = JSON.parse(userData);
+    io.emit("printAll", { Users: myObj });
   });
 });
 
