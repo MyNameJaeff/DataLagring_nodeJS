@@ -97,25 +97,46 @@
         const användarnamn = $('#username');
         const födelsedag = $('#birthday');
         const bild = $('#image')[0].files[0];
-        const yrke = $('#profession');
+        const bildEl = $("#image");
+        const yrke = $('#proffesion');
         const who = $("#who");
 
 
         whoForm.on("submit", (e) => {
-            whoForm.css("display", "none");
-            $("#formDiv input").prop("disabled", false);
             let whomst = who.val();
             socket.emit("searchFor", whomst)
             e.preventDefault();
         })
 
+        form.on("submit", (e) => {
+            if (form.attr("id") == "edit") {
+                e.preventDefault();
+                användarnamn.attr("disabled", false);
+                let usr = {
+                    firstname: förnamn.val(),
+                    lastname: efternamn.val(),
+                    username: användarnamn.val(),
+                    birthday: födelsedag.val(),
+                    proffesion: yrke.val()
+                }
+                console.log(bild);
+                console.log(usr);
+                socket.emit("change this user", usr);
+                changeValues();
+                formDiv.css("display", "none");
+                whoForm.css("display", "none");
+            }
+        })
+
         const createUser = () => {
+            form.attr("method", "post");
             formDiv.css("display", "flex");
             form.attr("id", "create");
             whoForm.css("display", "none");
             personsSpace.html("");
             formHeader.text("Create Person");
             $("#formDiv input").prop("disabled", false);
+            changeValues();
         }
 
         const editUser = () => {
@@ -127,10 +148,37 @@
             formHeader.text("Edit Person");
         }
 
+        socket.on("this user", (who) => {
+            if (who != false) {
+                whoForm.css("display", "none");
+                $("#formDiv input").prop("disabled", false);
+
+                changeValues(who.firstname, who.lastname, who.username, who.birthday, who.proffesion);
+
+                // Disable becasue it will otherwise send a non-existent username to the database
+                användarnamn.attr("disabled", true);
+
+                // Disabled because of problems with file uploads when editing
+                bildEl.attr("disabled", true);
+
+                förnamn.attr("required", false);
+                efternamn.attr("required", false);
+                användarnamn.attr("required", false);
+                födelsedag.attr("required", false);
+                bildEl.attr("required", false);
+                yrke.attr("required", false);
+
+                form.attr("method", "");
+            } else {
+                alert("There was no one by that name!");
+            }
+        })
+
         const showUsers = () => {
             formDiv.css("display", "none");
-            socket.emit("show");
             whoForm.css("display", "none");
+            socket.emit("show");
+            changeValues();
         }
 
         socket.on("printAll", (users) => {
@@ -151,6 +199,20 @@
                 </div> `;
             });
             personsSpace.html(string);
+        });
+
+        const changeValues = (firstname = "", lastname = "", username = "", birthday = "", proffesion = "", image = "", whomst = "") => {
+            förnamn.val(firstname);
+            efternamn.val(lastname);
+            användarnamn.val(username);
+            födelsedag.val(birthday);
+            bildEl.val(image);
+            yrke.val(proffesion);
+            who.val(whomst);
+        }
+
+        socket.on("Already exists", () => {
+            alert("This username is taken! (check the all tab first!)");
         });
     </script>
 </body>
