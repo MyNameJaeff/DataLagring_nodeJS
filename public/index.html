@@ -85,12 +85,14 @@
     </main>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // Creates a connection to send thing to the server
         const socket = io();
+
+        // Defines a bunch of elements in the html code for modifying and getting data from
         const formDiv = $("#formDiv");
         const personsSpace = $("#personsSpace");
         const formHeader = $("#formHeader");
         const whoForm = $("#whoForm");
-
         const form = $('#form');
         const förnamn = $('#firstname');
         const efternamn = $('#lastname');
@@ -101,13 +103,15 @@
         const yrke = $('#proffesion');
         const who = $("#who");
 
-
+        // When the form for searching for person before editing is submited run this. Sends the username to the server to fetch the said users data 
+        // (e.preventDefault for not reloading)
         whoForm.on("submit", (e) => {
             let whomst = who.val();
             socket.emit("searchFor", whomst)
             e.preventDefault();
         })
 
+        // Sends the data which is to be changed in the specified user by sending "submit" to the server. Data is in the form of an object
         form.on("submit", (e) => {
             if (form.attr("id") == "edit") {
                 e.preventDefault();
@@ -119,8 +123,6 @@
                     birthday: födelsedag.val(),
                     proffesion: yrke.val()
                 }
-                console.log(bild);
-                console.log(usr);
                 socket.emit("change this user", usr);
                 changeValues();
                 formDiv.css("display", "none");
@@ -128,6 +130,7 @@
             }
         })
 
+        // On the button "create" change the form to create a user
         const createUser = () => {
             form.attr("method", "post");
             formDiv.css("display", "flex");
@@ -139,6 +142,7 @@
             changeValues();
         }
 
+        // On the button "edit" change the form to edit a user
         const editUser = () => {
             formDiv.css("display", "flex");
             $("#formDiv input").prop("disabled", true);
@@ -148,6 +152,7 @@
             formHeader.text("Edit Person");
         }
 
+        // When reciving "this user" change the input form to have all the data from the selected user when wanting to edit
         socket.on("this user", (who) => {
             if (who != false) {
                 whoForm.css("display", "none");
@@ -174,6 +179,7 @@
             }
         })
 
+        // On the button "show" change the visibility of the forms to make room for all of the users
         const showUsers = () => {
             formDiv.css("display", "none");
             whoForm.css("display", "none");
@@ -181,8 +187,12 @@
             changeValues();
         }
 
+        // When reciving "printAll" from the server, take the recived data and use it to print cards with the all of the users data. Prints a long string inside the div "personsSpace"
         socket.on("printAll", (users) => {
             let persons = users.Users.Users;
+            if((users.Users).count > 0){
+                console.log((users.Users).count);
+            }
             let string = "";
             persons.map((user) => {
                 string += `
@@ -201,6 +211,7 @@
             personsSpace.html(string);
         });
 
+        // A function for changing the value of all of the inputs inside the form for easier calling
         const changeValues = (firstname = "", lastname = "", username = "", birthday = "", proffesion = "", image = "", whomst = "") => {
             förnamn.val(firstname);
             efternamn.val(lastname);
@@ -211,9 +222,10 @@
             who.val(whomst);
         }
 
-        socket.on("Already exists", () => {
+        // This one does not work currently
+        /* socket.on("Already exists", () => {
             alert("This username is taken! (check the all tab first!)");
-        });
+        }); */
     </script>
 </body>
 
